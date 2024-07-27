@@ -327,7 +327,7 @@ def get_pattern(query, dbtype, customsep, customcolumn, logger):
     return seqname, desc.strip(), fields
 
 
-def parser_blast(basename, result_blast, identidade, positividade, cov, dbtype, keyword_list, customsep, customcolum):
+def parser_blast(basename, result_blast, identidade, positividade, cov, dbtype, keyword_list, customsep, customcolumn):
     result_blast_file = open(str(result_blast), "r").read().splitlines()
     hyp = open(f"{str(basename)}_hypothetical_products.txt", "w")
     nhyp = open(f"{str(basename)}_annotated_products.txt", "a")
@@ -346,7 +346,7 @@ def parser_blast(basename, result_blast, identidade, positividade, cov, dbtype, 
     desc_list = []
 
     for query in result_blast_file:
-        new_id, desc, fields = get_pattern(query, dbtype, customsep, customcolum, logger)
+        new_id, desc, fields = get_pattern(query, dbtype, customsep, customcolumn, logger)
         # defining which file will receive each HSP depending on the counter number
         #   the script will write each HSP on its corresponding .txt file
         # IMPORTANT: the first time this loop runs it will add an empty line ("\n")
@@ -486,15 +486,15 @@ def main():
     args = parser.parse_args()
     # ----------------------- Create LogFile ------------------------------------
     logger = logging.getLogger('Blast')
-    '''---Keywords-------------------------------------------------------------'''
-
+    #'''---Keywords-------------------------------------------------------------'''
+    swiss_out = f"{str(args.basename)}_BLASTp_AAvsSwissProt.outfmt6"
+    swiss_run(blastp=args.blastp, arq1=args.seq, arq2=swiss_out, db=args.spdb, hsps=args.hsps, evalue=args.evalue, logger=logger, threads=args.threads)
     # defining the keywords that will be used
     #   to separate each HSP found in the BLAST output_file.txt:
     keyword_list = args.keywords.split(",")
     # ----------------------Redirect STDOUT and STDERR to logfile--------------
     dbtype, second_db = define_db(args, logger)
     # Run BLAST against swissprotDB
-    swiss_out = f"{str(args.basename)}_BLASTp_AAvsSwissProt.outfmt6"
     process_swiss(args.basename, args.seq, swiss_out, args.id, args.pos, args.cov, keyword_list)
     # Secondary database
     odb_out_name = f"{str(args.basename)}_BLASTp_AAvsSpecifiedDB.outfmt6"
@@ -505,7 +505,7 @@ def main():
     check_file(odb_out_name, logger)
     # ------------------------------
     logger.info(f"Running parser {dbtype}")
-    parser_blast(basename=args.basename, result_blast=odb_out_name, identidade=args.id, positividade=args.pos, cov=args.cov,dbtype=dbtype,keyword_list=keyword_list, customsep=args.customsep, customcolum=args.customcolum)
+    parser_blast(basename=args.basename, result_blast=odb_out_name, identidade=args.id, positividade=args.pos, cov=args.cov,dbtype=dbtype,keyword_list=keyword_list, customsep=args.customsep, customcolumn=args.customcolumn)
     logger.info("Parser blast done")
     # -------------No hit-----------
     logger.info(f"Identifying proteins with no hits in Swissprot and {dbtype} databases")

@@ -27,9 +27,6 @@ import yaml
 
 script_pwd = pathlib.Path(sys.argv[0]).absolute()
 
-# AnnotaPipeline location
-pipeline_pwd = script_pwd.parents[0]
-
 # initial directory
 home_dir_pwd = pathlib.Path.cwd()
 
@@ -413,9 +410,8 @@ def kallisto_run(python_path, kallisto, paired_end, method, basename, fasta):
         kallisto_parser_flag = f'-tpmval {kallisto.get("threshold")}'
     # Run parser
     # inside 4_Transcript_Quantification_
-    kallisto_parser_path =  str(pipeline_pwd / "kallisto_parser.py")
     kallisto_parser_command = (
-        f"{python_path} {kallisto_parser_path} "
+        f"kallisto_parser "
         f"-ktfile {basename}_kallisto_output/abundance.tsv " # kallisto output is always "abundance.tsv"
         f"-basename {basename} {kallisto_parser_flag}"
     )
@@ -429,8 +425,7 @@ def kallisto_run(python_path, kallisto, paired_end, method, basename, fasta):
 # Run fastatogff parser
 def run_fastatogff(gff_file, AnnotaBasename):
     subprocess.run([
-        "python",
-        str(pipeline_pwd / "fastatogff.py"),
+        "fastatogff",
         "-gff",
         str(gff_file),
         "-all",
@@ -877,8 +872,6 @@ def main():
             str(blast.get('max_target_seqs')), 
             "-evalue", 
             str(blast.get('evalue')),
-            "-blastp",
-            "blastp",
             # Flags used only with customdb
             "-customsep",
             str(customsep), 
