@@ -877,7 +877,8 @@ def main():
             str(blast.get('max_target_seqs')), 
             "-evalue", 
             str(blast.get('evalue')),
-            "-blastp blastp",
+            "-blastp",
+            "blastp",
             # Flags used only with customdb
             "-customsep",
             str(customsep), 
